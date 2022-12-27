@@ -1,0 +1,43 @@
+#  The contact options.
+
+-
+  type: github
+  icon: 'fab fa-github'
+-
+#  type: email
+#  icon: 'fas fa-envelope'
+#  noblank: false            # open link in current tab
+#-
+  type: twitter
+  icon: 'fab fa-twitter'
+-
+  type: hackthebox
+  icon: 'fas fa-cube'
+  url: 'https://app.hackthebox.com/profile/535069'
+-
+  type: linkedin
+  icon: 'fab fa-linkedin'   # icons powered by <https://fontawesome.com/>
+  url:  'https://www.linkedin.com/in/danielqueroperez/'
+-
+#  type: stack-overflow
+#  icon: 'fab fa-stack-overflow'
+#  url:  'https://stackoverflow.com/users/18315253/xdann1'                  # Fill with your stackoverflow homepage
+# -
+#   type: rss
+#   icon: 'fas fa-rss'
+#   noblank: true
+# -
+
+# Uncomment and complete the url below to enable more contact options
+# -
+#   type: mastodon
+#   icon: 'fab fa-mastodon'   # icons powered by <https://fontawesome.com/>
+#   url:  ''                  # Fill with your mastodon account page
+# -
+#   type: linkedin
+#   icon: 'fab fa-linkedin'   # icons powered by <https://fontawesome.com/>
+#   url:  ''                  # Fill with your Linkedin homepage
+# -
+#   type: stack-overflow
+#   icon: 'fab fa-stack-overflow'
+#   url:  ''                  # Fill with your stackoverflow homepage
