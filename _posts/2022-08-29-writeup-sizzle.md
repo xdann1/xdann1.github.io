@@ -138,54 +138,7 @@ PORT      STATE SERVICE       VERSION
 445/tcp   open  microsoft-ds?
 464/tcp   open  kpasswd5?
 593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
-636/tcp   open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: HTB.LOCAL, Site: Default-First-Site-Name)
-| ssl-cert: Subject: commonName=sizzle.HTB.LOCAL
-| Subject Alternative Name: othername:<unsupported>, DNS:sizzle.HTB.LOCAL
-| Not valid before: 2022-08-29T04:35:53
-|_Not valid after:  2023-08-29T04:35:53
-|_ssl-date: 2022-08-29T06:34:07+00:00; +8s from scanner time.
-3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP (Domain: HTB.LOCAL, Site: Default-First-Site-Name)
-| ssl-cert: Subject: commonName=sizzle.HTB.LOCAL
-| Subject Alternative Name: othername:<unsupported>, DNS:sizzle.HTB.LOCAL
-| Not valid before: 2022-08-29T04:35:53
-|_Not valid after:  2023-08-29T04:35:53
-|_ssl-date: 2022-08-29T06:34:07+00:00; +8s from scanner time.
-3269/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP (Domain: HTB.LOCAL, Site: Default-First-Site-Name)
-| ssl-cert: Subject: commonName=sizzle.HTB.LOCAL
-| Subject Alternative Name: othername:<unsupported>, DNS:sizzle.HTB.LOCAL
-| Not valid before: 2022-08-29T04:35:53
-|_Not valid after:  2023-08-29T04:35:53
-|_ssl-date: 2022-08-29T06:34:07+00:00; +8s from scanner time.
-5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
-|_http-server-header: Microsoft-HTTPAPI/2.0
-|_http-title: Not Found
-5986/tcp  open  ssl/http      Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
-|_http-title: Not Found
-| tls-alpn: 
-|   h2
-|_  http/1.1
-| ssl-cert: Subject: commonName=sizzle.HTB.LOCAL
-| Subject Alternative Name: othername:<unsupported>, DNS:sizzle.HTB.LOCAL
-| Not valid before: 2022-08-29T04:35:53
-|_Not valid after:  2023-08-29T04:35:53
-|_http-server-header: Microsoft-HTTPAPI/2.0
-|_ssl-date: 2022-08-29T06:34:07+00:00; +8s from scanner time.
-9389/tcp  open  mc-nmf        .NET Message Framing
-47001/tcp open  http          Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
-|_http-title: Not Found
-|_http-server-header: Microsoft-HTTPAPI/2.0
-49664/tcp open  msrpc         Microsoft Windows RPC
-49665/tcp open  msrpc         Microsoft Windows RPC
-49667/tcp open  msrpc         Microsoft Windows RPC
-49669/tcp open  msrpc         Microsoft Windows RPC
-49677/tcp open  msrpc         Microsoft Windows RPC
-49688/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
-49689/tcp open  msrpc         Microsoft Windows RPC
-49691/tcp open  msrpc         Microsoft Windows RPC
-49694/tcp open  msrpc         Microsoft Windows RPC
-49706/tcp open  msrpc         Microsoft Windows RPC
-49711/tcp open  msrpc         Microsoft Windows RPC
-49719/tcp open  msrpc         Microsoft Windows RPC
+                                         ---SKIP---
 ```
 
 Los puertos abiertos y sus servicios asocidados son:
@@ -207,18 +160,6 @@ Los puertos abiertos y sus servicios asocidados son:
 * 5986/tcp -> ssl/http
 * 9389/tcp -> mc-nmf
 * 47001/tcp -> http
-* 49664/tcp -> msrpc
-* 49665/tcp -> msrpc
-* 49667/tcp -> msrpc
-* 49669/tcp -> msrpc
-* 49677/tcp -> msrpc
-* 49688/tcp -> msrpc
-* 49689/tcp -> msrpc
-* 49691/tcp -> msrpc
-* 49694/tcp -> msrpc
-* 49706/tcp -> msrpc
-* 49711/tcp -> msrpc
-* 49719/tcp -> msrpc
 
 ## FTP
 
