@@ -73,18 +73,7 @@ PORT      STATE SERVICE          REASON
 5986/tcp  open  wsmans           syn-ack ttl 127
 9389/tcp  open  adws             syn-ack ttl 127
 47001/tcp open  winrm            syn-ack ttl 127
-49664/tcp open  unknown          syn-ack ttl 127
-49665/tcp open  unknown          syn-ack ttl 127
-49667/tcp open  unknown          syn-ack ttl 127
-49669/tcp open  unknown          syn-ack ttl 127
-49677/tcp open  unknown          syn-ack ttl 127
-49688/tcp open  unknown          syn-ack ttl 127
-49689/tcp open  unknown          syn-ack ttl 127
-49691/tcp open  unknown          syn-ack ttl 127
-49694/tcp open  unknown          syn-ack ttl 127
-49706/tcp open  unknown          syn-ack ttl 127
-49711/tcp open  unknown          syn-ack ttl 127
-49719/tcp open  unknown          syn-ack ttl 127
+                                         ---SKIP---
 ```
 
 Ahora vamos a realizar un escaneo más profundo, también con `nmap` pero esta vez solamente lanzaremos scripts básicos de enumeración y analizaremos la versión de los puertos abiertos obtenidos anteriormente.
