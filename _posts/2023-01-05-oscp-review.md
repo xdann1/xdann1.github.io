@@ -4,14 +4,13 @@ author: xdann1
 date: 2023-01-05
 categories: [Review, Certificación]
 tags: [Certificación, Pentesting, OSCP]
+pin: true
 image:
   path: ../../assets/img/commons/oscp/oscp-icon.png
   width: 560
   height: 260
   alt: Banner OSCP
 ---
-
-## Introducción
 
 El pasado día 5 de enero Offensive Security me mando el mail que confirma que oficialmente he aprobado el OSCP (Offensive Security Certified Professional), por lo que quería compartir mi experiencia en esta nueva certificación analizandola de manera crítica.
 
