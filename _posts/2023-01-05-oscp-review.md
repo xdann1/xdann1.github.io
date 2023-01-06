@@ -1,7 +1,7 @@
 ---
 title: OSCP Review
 author: xdann1
-date: 2023-01-05
+date: 2023-01-06
 categories: [Review, Certificación]
 tags: [Certificación, Pentesting, OSCP]
 pin: true
