@@ -7,8 +7,6 @@ tags: [Certificación, Pentesting, OSCP]
 pin: true
 image:
   path: ../../assets/img/commons/oscp/oscp-icon.png
-  width: 560
-  height: 260
   alt: Banner OSCP
 ---
 
