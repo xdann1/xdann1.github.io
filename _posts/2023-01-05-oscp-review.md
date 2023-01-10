@@ -14,7 +14,7 @@ El pasado día 5 de enero Offensive Security me mando el mail que confirma que o
 
 ## Curso PEN-200
 
-Los contenidos del curso con la base más elemental que puedas imaginar (empiezen como si no hubieras tocado la terminal en la vida), sin embargo, esto no quiere decir que la certificación vaya a ser un paseo. Cuando me preguntan sobre los contenidos me gusta decir esta frase: "La certificación puede llegar a ser de 'entry level' pero te aseguro que no vas a salir de esta siendo teniendo el nivel que tenías cuando entraste".
+Los contenidos del curso con la base más elemental que puedas imaginar (empiezen como si no hubieras tocado la terminal en la vida), sin embargo, esto no quiere decir que la certificación vaya a ser un paseo. Cuando me preguntan sobre los contenidos me gusta decir esta frase: "La certificación puede llegar a ser de 'entry level' pero te aseguro que no vas a salir de esta teniendo el nivel que tenías cuando entraste".
 
 Estos son módulos que contiene el curso:
 
