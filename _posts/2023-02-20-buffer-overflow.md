@@ -1,5 +1,5 @@
 ---
-title: Buffer Overflow
+title: Fundamentos de Buffer Overflow
 author: xdann1
 date: 2023-02-20
 categories: [Explicación, BOF]
