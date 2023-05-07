@@ -4,7 +4,6 @@ author: xdann1
 date: 2023-01-05
 categories: [Review, Certificación]
 tags: [Certificación, Pentesting, OSCP]
-pin: true
 image:
   path: ../../assets/img/commons/oscp/oscp-icon.png
   alt: Banner OSCP
@@ -14,7 +13,7 @@ El pasado día 5 de enero Offensive Security me mandó el mail que confirma que 
 
 ## Curso PEN-200
 
-Los contenidos del curso con la base más elemental que puedas imaginar (empiezan como si no hubieras tocado la terminal en la vida), sin embargo, esto no quiere decir que la certificación vaya a ser un paseo. Cuando me preguntan sobre los contenidos me gusta decir esta frase: "La certificación puede llegar a ser de 'entry level' pero te aseguro que no vas a salir de esta teniendo el nivel que tenías cuando entraste".
+Los contenidos del curso empiezan con la base más elemental que puedas imaginar (empiezan como si no hubieras tocado la terminal en la vida), sin embargo, esto no quiere decir que la certificación vaya a ser un paseo. Cuando me preguntan sobre los contenidos me gusta decir esta frase: "La certificación puede llegar a ser de 'entry level' pero te aseguro que no vas a salir de esta teniendo el nivel que tenías cuando entraste".
 
 Estos son módulos que contiene el curso:
 
@@ -48,7 +47,7 @@ Cada módulo del curso viene explicado de dos formas, mediante vídeos o mediant
 
 <h3 data-toc-skip>¿Es suficiente el curso para poder aprobar?</h3> 
 
-La verdad es que no, mis sensaciones es que ellos te dan lo mínimo de cada tema (hay alguna excepción) para que puedas orientarte y ya luego tú investigas por tu parte. Por ejemplo, en el apartado "Web Application Attacks" te enseñan 4 vulnerabilidades y cómo explotarlas, pero esto no significa que no te puedas topar con otras en los labs o en el propio examen, de hecho eso es lo que me paso a mi.
+La verdad es que no, mis sensaciones es que ellos te dan lo mínimo de cada tema (hay alguna excepción) para que puedas orientarte y ya luego tú investigas por tu parte. Por ejemplo, en el apartado "Web Application Attacks" te enseñan 4 vulnerabilidades y cómo explotarlas, pero esto no significa que no te puedas topar con otras en los labs o en el propio examen, de hecho eso es lo que me pasó a mi.
 
 El curso deja bastante que desear, cualquier otra certificación tiene más y mejor contenido. Con esto no quiero decir que el contenido en general sea de lo peor. Si comparas el directorio activo (AD) del curso con otros te darás cuenta de que no tiene nada ver. Pero, ¿por qué pasa esto? Pues la explicación es bastante sencilla, al tener un curso de, por ejemplo, 1000 páginas en el que tienes que dar 10 temas se te quedarán 100 páginas por tema de modo que no profundizas mucho en cada uno. Por el contrario, en otro curso en el que den 500 páginas pero que solo se centre en 2 temas se quedará en 250 páginas por tema, pudiendo profundizar muchisimo más en cada cosa. Aunque el contenido en general de este último curso sea la mitad de largo por cada tema será el doble de largo.
 
