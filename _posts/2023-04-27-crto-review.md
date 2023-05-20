@@ -25,13 +25,13 @@ Aquí podéis ver los módulos que contiene el curso (bajad un poco):
 
 [Syllabus CRTO](https://training.zeropointsecurity.co.uk/courses/red-team-ops)
 
-<h3 data-toc-skip>¿Es suficiente el curso para poder aprobar?</h3>
+### ¿Es suficiente el curso para poder aprobar?
 
 Aunque le falte mucho contenido que hable del porqué de las cosas, considero que el curso tiene todo y más de lo que necesitas para aprobar el examen. Eso sí, aunque el curso tenga el contenido necesario recomiendo encarecidamente que te mires por tu cuenta por qué se dan ciertas situaciones, ya que te va a ayudar mucho a ir mucho más rápido y tener una visión general más clara. 
 
 Algo muy interesante del curso y que me gustó mucho es que a lo largo del curso te van dando consejos de OPSEC y advirtiendo de malas prácticas que deberías evitar. Aunque en el examen y en los laboratorios no tenga mucha importancia seguir los consejos que dan creo que le da un muy buen punto a la certificación, ya que uno de los puntos primordiales del Red Team es tratar de pasar desapercibido.
 
-<h3 data-toc-skip>Laboratorio</h3> 
+### Laboratorio
 
 El laboratorio a mi me gustó bastante, vas a poder practicar todo los contenidos del curso y además se puede resolver de varias maneras, este concetpo es muy bueno ya que así no solo te limitas a copiar lo que se hace en el curso sino que también podrás hacer el famoso "Think outside of the box". 
 
@@ -65,11 +65,11 @@ Teniendo todos estos problemas solamente conseguí los requisitos mínimos (6 fl
 
 Tras tener una visión general de la certificación voy a pasar a mostrar los pros y contras de la certificación:
 
-<h3 data-toc-skip>Pros</h3>
+### Pros
 
 Los principales "pros" que le veo a la certificación son el dinero que cuesta y lo única que es. En el mercado, el CRTO es de la únicas certificaciones que te enseñan a usar un C2. Por otro lado, el precio de la certificación son unos "£365.00", bastante barata si lo comparamos con otras certificaciones y además este curso es de acceso de por vida, por lo que pagas una vez y si lo vuelven a actualizar podrás acceder a estos nuevos contenidos.
 
-<h3 data-toc-skip>Contras</h3>
+### Contras
 
 Aunque al final no usé el soporte del CRTO durante el examen, he visto gente quejandose del soporte porque a veces tardan mucho en responder, esta imagen habla por si sola:
 

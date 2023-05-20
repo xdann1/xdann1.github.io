@@ -155,7 +155,7 @@ En este apartado pretendo explicar la explotación de todos los tipos de inyecci
 
 Tenéis a vuestra disposición varias herramientas que automatizan la explotación de las inyecciones SQL, sin embargo, yo recomiendo que aprendáis a explotarlas por vostros mismos ya que no siempre vais a tener estas herramientas a mano, además siempre está bien aprender nuevas cosas.
 
-<h3 data-toc-skip>Union Based</h3> 
+### Union Based
 
 Antes de comenzar a explotar la inyección tendremos que comprobar si realmente estamos ante una posible inyección SQL de este tipo, esto lo podemos hacer inyectando código en la consulta. Podemo ver si estamos ante una inyección SQL de este tipo con el siguiente payload `1' UNION SELECT 1-- -`. Con esta consulta pueden pasar 3 cosas:
 
@@ -273,7 +273,7 @@ Esto es una prueba
 
 Ya hemos conseguido crear y escribir archivos del lado del servidor, yo en este caso he escrito un texto cualquiera para la demostración pero podemos llegar a poner puertas traseras que nos den acceso al servidor.
 
-<h3 data-toc-skip>Error Based</h3>
+### Error Based
 
 Las inyecciones SQL de tipo Error Based consisten en provocar a propósito un error en la consulta para conseguir de esta forma listar datos desde la salida del propio error.
 
@@ -313,7 +313,7 @@ _Conseguimos saber el nombre de una de las tablas_
 
 Ya si queremos saber el nombre de las columnas y los datos que contienen estas tendremos que hacerlo como en las de tipo `UNION BASED`, con la única diferencia de que no son necesarios los datos basura ni la orden UNION y que necesitamos el uso de la orden `LIMIT`.
 
-<h3 data-toc-skip>Boolean Based</h3>
+### Boolean Based
 
 Antes de explicar nada, vamos a necesitar realizar unas modificaciones al codigo de nuestra aplicación web. Los cambios consistiran en comentar el código con el que mostramos los resultados de la consulta, además, añadiremos una línea que nos diga cuando la consulta se ha realizado de una forma correcta:
 
@@ -364,7 +364,7 @@ Ya si queremos conseguir el nombre de las columnas y los valores que almacenan e
 
 Quiero recalcar que podemos variar la forma del payload, en nuestro ejemplo vamos comparando letra por letra pero podemos hacerlo de otras maneras, como por ejemplo probando palabras enteras. Si queremos hacerlo utilizando palabras directamente podemos hacerlo con el siguiente payload `teclado' AND database()="Tienda"-- -`. En ambos métodos recomiendo que os hagáis un script para agilizar el proceso pues se os puede llegar a hacer pesado si lo hacéis manualmente.
 
-<h3 data-toc-skip>Time Based</h3>
+### Time Based
 
 Como en las inyecciones SQL de tipo Boolean Based necesitamos hacer un cambio en el código, en este caso simplemente tendremos que comentar la línea que nos indica que la consulta se ha realizado correctamente.
 
@@ -404,7 +404,7 @@ Ya si queremos conseguir el nombre de las columnas y los valores que almacenan e
 
 Quiero recalcar que podemos variar la forma del payload, en nuestro ejemplo vamos comparando letra por letra pero podemos hacerlo de otras maneras, como por ejemplo probando palabras enteras. Si queremos hacerlo utilizando palabras directamente podemos hacerlo con el siguiente payload `teclado' and if(database()="Tienda", sleep(5),1)-- -`. En ambos métodos recomiendo que os hagáis un script para agilizar el proceso pues se os puede llegar a hacer pesado si lo hacéis manualmente.
 
-<h3 data-toc-skip>Out-of-band</h3>
+### Out-of-band
 
 Este tipo de inyecciones se dan cuando no somos capaces de conseguir la salida de la consulta de ninguna forma posible y además tenemos la capacidad de generar peticiones HTTP(S) o DNS. 
 
@@ -421,7 +421,7 @@ Iniciaremos la herramienta, al iniciarla nos proporcianaran un dominio al que te
 De esta forma hemos conseguido enviar una solicitud DNS a un dominio el cual tiene de subdominios la salida de las consultas SELECT. Si queremos conseguir otros datos
 simplemente tendremos que cambiar las consultas SELECT.
 
-<h3 data-toc-skip>Paneles de Login</h3>
+### Paneles de Login
 
 Soy consciente de que esto no es un tipo de inyección SQL pero creo que se merece un apartado para explicar distintas formas de explotarlos.
 

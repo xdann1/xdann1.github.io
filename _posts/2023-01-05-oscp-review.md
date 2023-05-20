@@ -45,7 +45,7 @@ Estos son módulos que contiene el curso:
 
 Cada módulo del curso viene explicado de dos formas, mediante vídeos o mediante diapositivas. La verdad, los módulos buenos se cuentan con los dedos de las manos. Los que podría resaltar son el 11, 12, 18 y 20. Exceptuando los citados anteriormente, ningún módulo profundiza demasiado y tampoco son muy complejos.
 
-<h3 data-toc-skip>¿Es suficiente el curso para poder aprobar?</h3> 
+### ¿Es suficiente el curso para poder aprobar?
 
 La verdad es que no, mis sensaciones es que ellos te dan lo mínimo de cada tema (hay alguna excepción) para que puedas orientarte y ya luego tú investigas por tu parte. Por ejemplo, en el apartado "Web Application Attacks" te enseñan 4 vulnerabilidades y cómo explotarlas, pero esto no significa que no te puedas topar con otras en los labs o en el propio examen, de hecho eso es lo que me pasó a mi.
 
@@ -53,7 +53,7 @@ El curso deja bastante que desear, cualquier otra certificación tiene más y me
 
 Entonces, ¿el temario del curso del OSCP es malo? En general no, lo que le pasa es que tiene el contenido distribuido en bastantes temas. Te recomiendo que si quieres profundizar en un aspecto muy concreto (active directory, exploiting, web...) vayas a otra certificación, ya que esta si bien es cierto que da todo esto, lo hace de forma superficial.
 
-<h3 data-toc-skip>Laboratorios</h3> 
+### Laboratorios
 
 Una de las partes fuertes de la certificación son los laboratorios, una serie de máquina (73 aproximadamente) que te preparan para el examen. Junto con las máquinas de [Proving Grounds](https://www.offensive-security.com/labs/individual/) son los mejores laboratorios que he probado.  Te preparan no solo de forma de aprender nuevas técnicas, sino que también te ayudan a forjar una buena metodología.
 
