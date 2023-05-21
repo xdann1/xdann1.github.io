@@ -23,7 +23,7 @@ timezone: Europe/Madrid
 
 title: xDaNN1                          # the main title
 
-tagline: Cybersecurity enthusiast | CTF Player | OSCP - eJPT   # it will display as the sub-title
+tagline: Cybersecurity enthusiast | CTF Player # it will display as the sub-title
 
 description: >-                        # used by seo meta and the atom feed
   Blog sobre ciberseguridad, Hacking ético y CTF, orientado tanto para personas nuevas en el sector como para personas experimentadas.
